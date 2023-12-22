@@ -223,3 +223,128 @@ class Agenda extends React.Component {
 
 ReactDOM.render( <App /> , document.getElementById('root'));
 
+import React, { useState } from 'react';
+import AgendaForm from './AgendaForm';
+
+// AgendaEditor.js
+class AgendaEditor extends React.Component {
+  constructor(props) {
+    this.state = {
+      agendas: [],
+      attributes: [],
+      pageSize: 2,
+      links: {},
+      totalDuration: 0,
+      totalCreditableMinutes: 0,
+    };
+  }
+
+  componentDidMount() {
+    this.loadFromServer(this.state.pageSize);
+  }
+
+  loadFromServer(pageSize) {
+    follow(client, root, [
+      { rel: 'agendas', params: { size: pageSize } },
+    ])
+      .then((agendaList) => {
+        return client({
+          method: 'GET',
+          path: agendaList.entity._links.profile.href,
+          headers: { Accept: 'application/schema+json' },
+        }).then((schema) => {
+          this.schema = schema.entity;
+          return agendaList;
+        });
+      })
+      .done((agendaList) => {
+        const { agendas, totalDuration, totalCreditableMinutes } = this.calculateTotals(
+          agendaList.entity._embedded.agendas
+        );
+        this.setState({
+          agendas,
+          attributes: Object.keys(this.schema.properties),
+          pageSize: pageSize,
+          links: agendaList.entity._links,
+          totalDuration,
+          totalCreditableMinutes,
+        });
+      });
+  }
+
+   onSave = () => {
+
+      const saveEndpoint = '/create';
+
+      const dataToSave = {
+        agendas: this.state.agendas
+      };
+
+      client({
+        method: 'POST',
+        path: saveEndpoint,
+        entity: dataToSave,
+        headers: { 'Content-Type': 'application/json' },
+      })
+        .then((response) => {
+          console.log('Changes saved successfully:', response);
+        })
+        .catch((error) => {
+          console.error('Error saving changes:', error);
+        });
+    };
+
+  calculateTotals(agendas) {
+    let totalDuration = 0;
+    let totalCreditableMinutes = 0;
+
+    agendas.forEach((agenda) => {
+      totalDuration += this.calculateTotalDuration(agenda.agendaItems);
+      totalCreditableMinutes += this.calculateTotalCreditableMinutes(agenda.agendaItems);
+    });
+
+    return { agendas, totalDuration, totalCreditableMinutes };
+  }
+
+  calculateTotalDuration(agendaItems) {
+    const totalDuration = agendaItems.reduce((total, item) => total + item.duration, 0);
+    return totalDuration;
+  }
+
+  calculateTotalCreditableMinutes(agendaItems) {
+    const totalCreditableMinutes = agendaItems
+          .filter((item) => item.creditable)
+          .reduce((total, item) => total + item.duration, 0);
+
+    return totalCreditableMinutes;
+  }
+
+  render() {
+    return (
+      <div>
+        <AgendaForm onSubmit={this.onCreate} />
+        <div>
+          <p>Total Duration: {this.state.totalDuration} minutes</p>
+          <p>Total Creditable Minutes: {this.state.totalCreditableMinutes} minutes</p>
+          {this.state.totalCreditableMinutes < 15 && (
+            <div style={{ color: 'red' }}>
+              Warning: Total creditable minutes are below 15 minutes.
+            </div>
+          )}
+           <button onClick={this.onSave}>Save</button>
+        </div>
+        <AgendaList
+          agendas={this.state.agendas}
+          links={this.state.links}
+          pageSize={this.state.pageSize}
+          onNavigate={this.onNavigate}
+          onDelete={this.state.onDelete}
+          updatePageSize={this.updatePageSize}
+        />
+      </div>
+    );
+  }
+}
+
+
+export default AgendaEditor;

@@ -29,7 +29,7 @@ public class AgendaItem {
 
     private boolean creditable;
 
-    private AgendaItem() {
+    AgendaItem() {
 
     }
 
@@ -43,4 +43,67 @@ public class AgendaItem {
         this.agenda = agenda;
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Agenda getAgenda() {
+        return agenda;
+    }
+
+    public void setAgenda(Agenda agenda) {
+        this.agenda = agenda;
+    }
+
+    public int getItemOrder() {
+        return itemOrder;
+    }
+
+    public void setItemOrder(int itemOrder) {
+        this.itemOrder = itemOrder;
+    }
+
+    public String getPhase() {
+        return phase;
+    }
+
+    public void setPhase(String phase) {
+        this.phase = phase;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public String getObjectives() {
+        return objectives;
+    }
+
+    public void setObjectives(String objectives) {
+        this.objectives = objectives;
+    }
+
+    public Long getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Long duration) {
+        this.duration = duration;
+    }
+
+    public boolean isCreditable() {
+        return creditable;
+    }
+
+    public void setCreditable(boolean creditable) {
+        this.creditable = creditable;
+    }
 }

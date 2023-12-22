@@ -20,7 +20,7 @@ public class Agenda {
     @OneToMany(mappedBy = "agenda")
     private List<AgendaItem> agendaItemList = new ArrayList<>();
 
-    private Agenda() {
+    Agenda() {
 
     }
 
@@ -28,4 +28,27 @@ public class Agenda {
         this.name = name;
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public List<AgendaItem> getAgendaItemList() {
+        return agendaItemList;
+    }
+
+    public void setAgendaItemList(List<AgendaItem> agendaItemList) {
+        this.agendaItemList = agendaItemList;
+    }
 }
